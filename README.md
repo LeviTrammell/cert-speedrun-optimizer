@@ -18,7 +18,7 @@ An MCP server and web interface for certification exam preparation using speedru
 docker run -d -p 8080:80 -v cert-data:/data ghcr.io/levitrammell/cert-speedrun-optimizer
 
 # Access the web UI at http://localhost:8080
-# MCP endpoint at http://localhost:8080/mcp/
+# MCP SSE endpoint at http://localhost:8080/sse
 ```
 
 Or with docker-compose:
@@ -26,6 +26,102 @@ Or with docker-compose:
 ```bash
 docker compose up -d
 ```
+
+## Running with Podman
+
+Podman works as a drop-in replacement for Docker:
+
+```bash
+# Run with persistent data
+podman run -d -p 8080:80 -v cert-data:/data ghcr.io/levitrammell/cert-speedrun-optimizer
+
+# Or use podman-compose / podman compose
+podman compose up -d
+```
+
+### Podman on macOS
+
+On macOS, Podman runs containers in a Linux VM. Make sure the VM is running:
+
+```bash
+# Initialize and start the Podman machine (first time only)
+podman machine init
+podman machine start
+
+# Verify it's running
+podman machine list
+```
+
+## Connecting MCP Clients
+
+Once the server is running, connect your preferred AI coding assistant.
+
+### Claude Code
+
+Create or edit `.mcp.json` in your project root (or `~/.claude.json` for global config):
+
+```json
+{
+  "mcpServers": {
+    "cert-speedrun": {
+      "type": "sse",
+      "url": "http://localhost:8080/sse"
+    }
+  }
+}
+```
+
+Or use the CLI:
+
+```bash
+claude mcp add cert-speedrun --transport sse --url http://localhost:8080/sse
+```
+
+Restart Claude Code after configuration. Verify with `/mcp` command.
+
+See [Claude Code MCP documentation](https://docs.claude.com/en/docs/claude-code/mcp) for more details.
+
+### OpenAI Codex CLI
+
+Edit `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.cert-speedrun]
+url = "http://localhost:8080/sse"
+```
+
+Or use the CLI:
+
+```bash
+codex mcp add cert-speedrun http://localhost:8080/sse
+```
+
+Verify with `codex mcp list`.
+
+See [Codex MCP documentation](https://developers.openai.com/codex/mcp/) for more details.
+
+### GitHub Copilot
+
+For VS Code, JetBrains, or other IDEs, edit `~/.copilot/mcp-config.json`:
+
+```json
+{
+  "servers": {
+    "cert-speedrun": {
+      "url": "http://localhost:8080/sse"
+    }
+  }
+}
+```
+
+For GitHub Copilot CLI, use the interactive command:
+
+```bash
+# In interactive mode
+/mcp add
+```
+
+See [GitHub Copilot MCP documentation](https://docs.github.com/copilot/customizing-copilot/using-model-context-protocol/extending-copilot-chat-with-mcp) for more details.
 
 ## Local Development
 
@@ -94,11 +190,16 @@ uv run uvicorn cert_speedrun.web.app:app --port 3000
 ## Building from Source
 
 ```bash
-# Build container
+# Build container (Docker)
 docker build -f Containerfile -t cert-speedrun .
+
+# Build container (Podman)
+podman build -f Containerfile -t cert-speedrun .
 
 # Run locally
 docker run -p 8080:80 -v $(pwd)/data:/data cert-speedrun
+# or
+podman run -p 8080:80 -v $(pwd)/data:/data cert-speedrun
 ```
 
 ## License
