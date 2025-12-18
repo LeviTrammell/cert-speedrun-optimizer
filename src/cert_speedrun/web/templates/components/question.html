@@ -1,0 +1,82 @@
+<div data-current="{{ current }}">
+    <div class="flex-between mb-1">
+        <span class="text-muted">Question {{ current }} of {{ total }}</span>
+        <span class="difficulty-{{ question.difficulty }}">{{ question.difficulty }}</span>
+    </div>
+
+    <div class="question-box">
+        <p class="instruction">{{ question.instruction }}</p>
+        <p class="question-text">{{ question.question_text }}</p>
+
+        {% if question.topics %}
+        <div class="mb-1">
+            {% for topic in question.topics %}
+            <span class="topic-tag">{{ topic.name }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form hx-post="/practice/{{ session_id }}/submit"
+              hx-target="#question-container"
+              hx-swap="innerHTML">
+            <input type="hidden" name="question_id" value="{{ question.id }}">
+
+            {% for answer in question.answers %}
+            <label class="answer-option" onclick="toggleSelection(this)">
+                {% if question.question_type == 'SINGLE' %}
+                <input type="radio" name="selected" value="{{ answer.id }}" required>
+                {% else %}
+                <input type="checkbox" name="selected" value="{{ answer.id }}">
+                {% endif %}
+                <span class="letter">{{ answer.letter }}.</span>
+                <span>{{ answer.option_text }}</span>
+            </label>
+            {% endfor %}
+
+            <div class="mt-2">
+                <button type="submit" class="btn">
+                    Submit Answer
+                    <span class="htmx-indicator">...</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleSelection(el) {
+    // For radio buttons, remove selected from all, add to current
+    const form = el.closest('form');
+    const input = el.querySelector('input');
+
+    if (input.type === 'radio') {
+        form.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
+        el.classList.add('selected');
+    } else {
+        // For checkboxes, toggle
+        el.classList.toggle('selected');
+    }
+}
+
+// Handle form submission validation for multi-select
+document.querySelector('form').addEventListener('submit', function(e) {
+    const question_type = '{{ question.question_type }}';
+    const choose_n = {{ question.choose_n or 0 }};
+
+    if (question_type === 'CHOOSE_N') {
+        const checked = this.querySelectorAll('input[name="selected"]:checked').length;
+        if (checked !== choose_n) {
+            e.preventDefault();
+            alert(`Please select exactly ${choose_n} answers.`);
+            return false;
+        }
+    } else if (question_type === 'SELECT_ALL') {
+        const checked = this.querySelectorAll('input[name="selected"]:checked').length;
+        if (checked === 0) {
+            e.preventDefault();
+            alert('Please select at least one answer.');
+            return false;
+        }
+    }
+});
+</script>

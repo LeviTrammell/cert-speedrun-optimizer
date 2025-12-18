@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Cert Speedrun - Home{% endblock %}
+
+{% block content %}
+<h2 class="mb-2">Your Exams</h2>
+
+{% if exams %}
+    {% for exam in exams %}
+    <div class="card">
+        <div class="flex-between">
+            <div>
+                <h2>{{ exam.name }}</h2>
+                <p>{{ exam.vendor }}{% if exam.exam_code %} - {{ exam.exam_code }}{% endif %}</p>
+            </div>
+            <a href="/exam/{{ exam.id }}" class="btn">View</a>
+        </div>
+        <div class="stats mt-1">
+            <span class="stat">{{ exam.question_count or 0 }} questions</span>
+            <span class="stat">{{ exam.topic_count or 0 }} topics</span>
+            {% if exam.passing_score %}
+            <span class="stat">{{ exam.passing_score }}% to pass</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <h2>No exams yet</h2>
+        <p>Use the MCP tools to create your first exam and add questions.</p>
+        <p class="mt-1 text-muted">
+            Connect this MCP server to Claude or another LLM to start building your question bank.
+        </p>
+    </div>
+{% endif %}
+
+<div class="card mt-2">
+    <h2>How to Use</h2>
+    <p>1. Connect the MCP server to your LLM (Claude Code, etc.)</p>
+    <p>2. Ask the LLM to create an exam and add questions</p>
+    <p>3. Practice here with randomized answers</p>
+    <p>4. Use Speedrun mode to drill your weak areas</p>
+</div>
+{% endblock %}

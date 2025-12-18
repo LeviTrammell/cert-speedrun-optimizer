@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Practice - {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-2">
+    <div>
+        <h2>{{ exam.name }}</h2>
+        <p class="text-muted">
+            {% if mode == 'speedrun' %}
+            Speedrun Mode - Targeting weak areas
+            {% else %}
+            Practice Mode
+            {% endif %}
+        </p>
+    </div>
+    <a href="/exam/{{ exam.id }}" class="btn btn-secondary">Exit</a>
+</div>
+
+<div class="progress-bar">
+    <div class="progress-fill" id="progress" style="width: 0%"></div>
+</div>
+
+<div id="question-container"
+     hx-get="/practice/{{ session_id }}/question"
+     hx-trigger="load"
+     hx-swap="innerHTML">
+    <div class="loading">Loading question...</div>
+</div>
+
+<script>
+    // Update progress bar
+    let totalQuestions = {{ total_questions }};
+    let currentQuestion = 0;
+
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target.id === 'question-container') {
+            // Extract current question number from response
+            const currentEl = document.querySelector('[data-current]');
+            if (currentEl) {
+                currentQuestion = parseInt(currentEl.dataset.current);
+                const progress = (currentQuestion / totalQuestions) * 100;
+                document.getElementById('progress').style.width = progress + '%';
+            }
+        }
+    });
+</script>
+{% endblock %}

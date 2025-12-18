@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ exam.name }} - Cert Speedrun{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-2">
+    <div>
+        <h2>{{ exam.name }}</h2>
+        <p class="text-muted">{{ exam.vendor }}{% if exam.exam_code %} - {{ exam.exam_code }}{% endif %}</p>
+    </div>
+    <a href="/" class="btn btn-secondary">Back</a>
+</div>
+
+{% if exam.description %}
+<div class="card">
+    <p>{{ exam.description }}</p>
+</div>
+{% endif %}
+
+<div class="stats mb-2">
+    <span class="stat">{{ total_questions }} questions</span>
+    {% if exam.passing_score %}
+    <span class="stat">{{ exam.passing_score }}% to pass</span>
+    {% endif %}
+    {% if exam.time_limit_minutes %}
+    <span class="stat">{{ exam.time_limit_minutes }} minutes</span>
+    {% endif %}
+</div>
+
+<div class="flex mb-2">
+    {% if total_questions > 0 %}
+    <a href="/exam/{{ exam.id }}/practice" class="btn">Practice</a>
+    <a href="/exam/{{ exam.id }}/speedrun" class="btn btn-secondary">Speedrun (Weak Areas)</a>
+    <a href="/exam/{{ exam.id }}/stats" class="btn btn-secondary">View Stats</a>
+    {% else %}
+    <p class="text-muted">Add questions via MCP tools to start practicing.</p>
+    {% endif %}
+</div>
+
+{% if topics %}
+<h3 class="mb-1">Topics</h3>
+<div class="card">
+    {% for topic in topics %}
+    <div class="flex-between" style="padding: 0.5rem 0; border-bottom: 1px solid var(--primary);">
+        <div>
+            <strong>{{ topic.name }}</strong>
+            {% if topic.weight_percent %}
+            <span class="text-muted">({{ topic.weight_percent }}%)</span>
+            {% endif %}
+        </div>
+        <div class="text-muted">{{ topic.question_count or 0 }} questions</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if recent_questions %}
+<h3 class="mt-2 mb-1">Recent Questions</h3>
+{% for q in recent_questions %}
+<div class="card">
+    <div class="flex-between">
+        <span class="difficulty-{{ q.difficulty }}">{{ q.difficulty }}</span>
+        <span class="text-muted">{{ q.question_type }}</span>
+    </div>
+    <p class="mt-1">{{ q.question_text[:200] }}{% if q.question_text|length > 200 %}...{% endif %}</p>
+    {% for tag in q.pattern_tags %}
+    <span class="topic-tag">{{ tag }}</span>
+    {% endfor %}
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

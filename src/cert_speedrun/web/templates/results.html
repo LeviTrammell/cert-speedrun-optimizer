@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Results - {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="card results-summary">
+    <h2>Practice Complete!</h2>
+    <div class="score">{{ (results.accuracy * 100)|round|int }}%</div>
+    <p>{{ results.correct }} / {{ results.total }} correct</p>
+
+    {% if exam.passing_score %}
+    {% if (results.accuracy * 100) >= exam.passing_score %}
+    <p class="text-success mt-1">You passed! ({{ exam.passing_score }}% required)</p>
+    {% else %}
+    <p class="text-error mt-1">Keep practicing! ({{ exam.passing_score }}% required)</p>
+    {% endif %}
+    {% endif %}
+</div>
+
+<div class="flex mt-2">
+    <a href="/exam/{{ exam.id }}/practice" class="btn">Practice Again</a>
+    <a href="/exam/{{ exam.id }}/speedrun" class="btn btn-secondary">Speedrun Weak Areas</a>
+    <a href="/exam/{{ exam.id }}" class="btn btn-secondary">Back to Exam</a>
+</div>
+
+<h3 class="mt-2 mb-1">Question Review</h3>
+{% for attempt in results.attempts %}
+<div class="card">
+    <div class="flex-between">
+        {% if attempt.is_correct %}
+        <span class="text-success">Correct</span>
+        {% else %}
+        <span class="text-error">Incorrect</span>
+        {% endif %}
+        <span class="difficulty-{{ attempt.difficulty }}">{{ attempt.difficulty }}</span>
+    </div>
+    <p class="mt-1">{{ attempt.question_text[:200] }}{% if attempt.question_text|length > 200 %}...{% endif %}</p>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,44 @@
+version: '3'
+
+tasks:
+  install:
+    desc: Install dependencies
+    cmds:
+      - uv sync
+
+  dev:
+    desc: Run MCP server in STDIO mode (for Claude Code)
+    cmds:
+      - uv run fastmcp run server.py
+
+  serve:
+    desc: Run MCP server in HTTP mode
+    cmds:
+      - uv run fastmcp run server.py --transport sse --port 8080
+
+  web:
+    desc: Run web UI
+    cmds:
+      - uv run uvicorn cert_speedrun.web.app:app --reload --port 3000
+
+  db:init:
+    desc: Initialize SQLite database
+    cmds:
+      - uv run python -c "from cert_speedrun.db.database import init_db; import asyncio; asyncio.run(init_db())"
+
+  db:reset:
+    desc: Reset database (drop and recreate)
+    cmds:
+      - rm -f data/cert_speedrun.db
+      - task db:init
+
+  test:
+    desc: Run tests
+    cmds:
+      - uv run pytest tests/ -v
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf __pycache__ .pytest_cache
+      - find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true

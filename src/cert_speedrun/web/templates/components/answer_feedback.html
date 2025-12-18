@@ -1,0 +1,48 @@
+<div class="question-box">
+    {% if is_correct %}
+    <h3 class="text-success mb-1">Correct!</h3>
+    {% else %}
+    <h3 class="text-error mb-1">Incorrect</h3>
+    {% endif %}
+
+    <p class="question-text">{{ question.question_text }}</p>
+
+    {% for answer in question.answers %}
+    <div class="answer-option
+        {% if answer.id in correct_ids %}correct{% endif %}
+        {% if answer.id in selected_ids and answer.id not in correct_ids %}incorrect{% endif %}">
+        <span class="letter">{{ answer.letter }}.</span>
+        <span>
+            {{ answer.option_text }}
+            {% if answer.id in correct_ids %}
+            <span class="text-success">(Correct)</span>
+            {% endif %}
+            {% if answer.id in selected_ids and answer.id not in correct_ids %}
+            <span class="text-error">(Your answer)</span>
+            {% endif %}
+        </span>
+    </div>
+    {% endfor %}
+
+    {% if question.explanation %}
+    <div class="explanation">
+        <strong>Explanation:</strong>
+        <p>{{ question.explanation }}</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-2">
+        {% if has_more %}
+        <button class="btn"
+                hx-get="/practice/{{ session_id }}/question"
+                hx-target="#question-container"
+                hx-swap="innerHTML">
+            Next Question
+        </button>
+        {% else %}
+        <a href="/practice/{{ session_id }}/results" class="btn btn-success">
+            View Results
+        </a>
+        {% endif %}
+    </div>
+</div>

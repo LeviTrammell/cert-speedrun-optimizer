@@ -1,0 +1,27 @@
+:80 {
+    # Health check endpoint
+    handle /health {
+        respond "OK" 200
+    }
+
+    # MCP SSE endpoint - route directly to MCP server
+    handle /sse {
+        reverse_proxy localhost:8080
+    }
+
+    # MCP messages endpoint - route directly to MCP server
+    handle /messages/* {
+        reverse_proxy localhost:8080
+    }
+
+    # Web UI at root path (must be last - catch-all)
+    handle {
+        reverse_proxy localhost:3000
+    }
+
+    # Logging
+    log {
+        output stdout
+        format console
+    }
+}

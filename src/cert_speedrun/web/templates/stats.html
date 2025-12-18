@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Stats - {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="flex-between mb-2">
+    <div>
+        <h2>{{ exam.name }}</h2>
+        <p class="text-muted">Performance Statistics</p>
+    </div>
+    <a href="/exam/{{ exam.id }}" class="btn btn-secondary">Back</a>
+</div>
+
+<h3 class="mb-1">Topic Accuracy</h3>
+<div class="card">
+    {% for topic in topic_stats %}
+    <div class="flex-between" style="padding: 0.75rem 0; {% if not loop.last %}border-bottom: 1px solid var(--primary);{% endif %}">
+        <div>
+            <strong>{{ topic.name }}</strong>
+        </div>
+        <div>
+            {% if topic.attempt_count > 0 %}
+            <span class="{% if topic.accuracy >= 0.8 %}text-success{% elif topic.accuracy >= 0.6 %}{% else %}text-error{% endif %}">
+                {{ (topic.accuracy * 100)|round|int }}%
+            </span>
+            <span class="text-muted">({{ topic.correct_count|int }}/{{ topic.attempt_count }})</span>
+            {% else %}
+            <span class="text-muted">No attempts</span>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No topics defined for this exam.</p>
+    {% endfor %}
+</div>
+
+{% if weak_questions %}
+<h3 class="mt-2 mb-1">Weak Questions</h3>
+<p class="text-muted mb-1">Questions you struggle with most</p>
+{% for q in weak_questions %}
+<div class="card">
+    <div class="flex-between">
+        <span class="difficulty-{{ q.difficulty }}">{{ q.difficulty }}</span>
+        <span class="text-error">
+            {% if q.attempt_count > 0 %}
+            {{ ((q.correct_count / q.attempt_count) * 100)|round|int }}% ({{ q.correct_count }}/{{ q.attempt_count }})
+            {% else %}
+            Not attempted
+            {% endif %}
+        </span>
+    </div>
+    <p class="mt-1">{{ q.question_text[:200] }}{% if q.question_text|length > 200 %}...{% endif %}</p>
+</div>
+{% endfor %}
+{% else %}
+<div class="card mt-2">
+    <p class="text-muted">No practice data yet. Start practicing to see your weak areas!</p>
+</div>
+{% endif %}
+
+<div class="flex mt-2">
+    <a href="/exam/{{ exam.id }}/speedrun" class="btn">Speedrun Weak Areas</a>
+    <a href="/exam/{{ exam.id }}/practice" class="btn btn-secondary">Full Practice</a>
+</div>
+{% endblock %}

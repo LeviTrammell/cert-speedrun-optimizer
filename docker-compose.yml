@@ -1,0 +1,16 @@
+services:
+  cert-speedrun:
+    build:
+      context: .
+      dockerfile: Containerfile
+    ports:
+      - "8080:80"    # Web UI via Caddy
+      - "8081:8080"  # MCP SSE directly
+    volumes:
+      - cert-speedrun-data:/data
+    environment:
+      - SEED_DATA=true
+    restart: unless-stopped
+
+volumes:
+  cert-speedrun-data:
