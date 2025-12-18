@@ -52,6 +52,23 @@ podman machine start
 podman machine list
 ```
 
+## Web Interface
+
+Once the container is running, access the web UI at:
+
+```
+http://localhost:8080
+```
+
+The web interface provides:
+
+- **Exam Selection**: Browse available certification exams
+- **Practice Mode**: Answer questions with immediate feedback
+- **Speedrun Mode**: Prioritizes questions you've answered incorrectly
+- **Statistics**: View accuracy breakdown by topic and track progress over time
+
+Questions are created and managed via MCP tools (see below), then practiced through the web UI.
+
 ## Connecting MCP Clients
 
 Once the server is running, connect your preferred AI coding assistant.
